@@ -1,0 +1,5 @@
+D:/project/DNSrelay/out/build/x64-debug/CMakeFiles/edit_cache.dir
+D:/project/DNSrelay/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+D:/project/DNSrelay/out/build/x64-debug/DNSrelay/CMakeFiles/DNSrelay.dir
+D:/project/DNSrelay/out/build/x64-debug/DNSrelay/CMakeFiles/edit_cache.dir
+D:/project/DNSrelay/out/build/x64-debug/DNSrelay/CMakeFiles/rebuild_cache.dir
