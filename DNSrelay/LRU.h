@@ -10,24 +10,24 @@ typedef struct LRUCache{
 	int capacity;
 	int currentSize;
 
-	struct CacheNode** HashMap;
+	struct cacheNode** hashMap;
 
-	struct CacheNode* LRUHead;
-	struct CacheNode* LRUTail;
+	struct cacheNode* LRUHead;
+	struct cacheNode* LRUTail;
 }LRUCache;
 
 /*LRU缓存双向链表结点*/
-typedef struct CacheNode
+typedef struct cacheNode
 {
 	char key[KEY_SIZE];
 	char val[VAL_SIZE];
 
-	struct CacheNode* HashPrev;
-	struct CacheNode* HashNext;
+	struct cacheNode* hashPrev;
+	struct cacheNode* hashNext;
 
-	struct CacheNode* LRUPrev;
-	struct CacheNode* LRUNext;
-}CacheNode;
+	struct cacheNode* LRUPrev;
+	struct cacheNode* LRUNext;
+}cacheNode;
 
 /*创建LRU缓存lruCache*/
 LRUCache* LRUCacheCreate(int capacity);
@@ -39,15 +39,15 @@ char* LRUCacheGet(LRUCache* lruCache, char* key);
 void LRUCachePut(LRUCache* lruCache, char* key, char* val);
 
 /*头插*/
-void MoveToFirst(LRUCache* cache, CacheNode* entry);
+void moveToFirst(LRUCache* cache, CacheNode* entry);
 
 /*创建cache结点*/
-CacheNode* NewCacheNode(char* key, char* val);
+CacheNode* newCacheNode(char* key, char* val);
 
 void LRUCachePrint(LRUCache* lruCache);
 
-int HashCode(LRUCache* cache, char* key);
+int hashCode(LRUCache* cache, char* key);
 
-void HashMapInsert(LRUCache* cache, CacheNode* node);
+void hashMapInsert(LRUCache* cache, CacheNode* node);
 
 void freeList(CacheNode* head);
