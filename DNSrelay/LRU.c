@@ -5,19 +5,19 @@
 /*创建LRU缓存*/
 LRUCache* LRUCacheCreate(int capacity)
 {
-    LRUCache* NewCache = (LRUCache*)malloc(sizeof(LRUCache));
-    memset(NewCache, 0, sizeof(*NewCache));
-    NewCache->capacity = capacity;
-    NewCache->HashMap = malloc(capacity * sizeof(CacheNode*));
-    memset(NewCache->HashMap, 0, sizeof(CacheNode*) * capacity);
+    LRUCache* newCache = (LRUCache*)malloc(sizeof(LRUCache));
+    memset(newCache, 0, sizeof(*newCache));
+    newCache->capacity = capacity;
+    newCache->hashMap = malloc(capacity * sizeof(cacheNode*));
+    memset(newCache->hashMap, 0, sizeof(cacheNode*) * capacity);
 
-    return NewCache;
+    return newCache;
 }
 
 /*销毁LRUCache*/
 void LRUCacheDestroy(LRUCache* lruCache)
 {
-    free(lruCache->HashMap);
+    free(lruCache->hashMap);
     freeList(lruCache->LRUHead);
     free(lruCache);
 }
@@ -25,7 +25,7 @@ void LRUCacheDestroy(LRUCache* lruCache)
 /*根据key获得val*/
 char* LRUCacheGet(LRUCache* cache, char* key)
 {
-    CacheNode* Entry = cache->HashMap[HashCode(cache, key)];
+    cacheNode* Entry = cache->cashMap[hashCode(cache, key)];
 
     while (Entry)
     {
@@ -42,7 +42,7 @@ char* LRUCacheGet(LRUCache* cache, char* key)
 /*将键值对放入cache*/
 void LRUCachePut(LRUCache* lruCache, char* key, char* val)
 {
-    CacheNode* Entry = lruCache->HashMap[HashCode(lruCache, key)];
+    cacheNode* Entry = lruCache->hashMap[hashCode(lruCache, key)];
 
     while (Entry)
     {
@@ -60,23 +60,23 @@ void LRUCachePut(LRUCache* lruCache, char* key, char* val)
     }
     else
     {
-        Entry = NewCacheNode(key, val);
+        Entry = newCacheNode(key, val);
         if (lruCache->currentSize == lruCache->capacity)
         {
-            CacheNode* temp = lruCache->LRUTail->LRUPrev;
+            cacheNode* temp = lruCache->LRUTail->LRUPrev;
             lruCache->LRUTail->LRUPrev = temp->LRUPrev;
             temp->LRUPrev->LRUNext = lruCache->LRUTail;
             free(temp);
             lruCache->currentSize--;
         }
-        MoveToFirst(lruCache, Entry);
-        HashMapInsert(lruCache, Entry);
+        moveToFirst(lruCache, Entry);
+        hashMapInsert(lruCache, Entry);
         lruCache->currentSize++;
     }
 }
 
 /*头插*/
-void MoveToFirst(LRUCache* cache, CacheNode* entry)
+void moveToFirst(LRUCache* cache, CacheNode* entry)
 {
     if (cache->LRUHead == NULL && cache->LRUTail == NULL)
     {
@@ -92,9 +92,9 @@ void MoveToFirst(LRUCache* cache, CacheNode* entry)
     }
 }
 
-CacheNode* NewCacheNode(char* key, char* val)
+CacheNode* newCacheNode(char* key, char* val)
 {
-    CacheNode* node = (CacheNode*)malloc(sizeof(*node));
+    cacheNode* node = (cacheNode*)malloc(sizeof(*node));
     memset(node, 0, sizeof(*node));
     strncpy(node->key, key, KEY_SIZE);
     strncpy(node->val, val, VAL_SIZE);
@@ -107,14 +107,14 @@ void LRUCachePrint(LRUCache* lruCache)
         return;
     }
     fprintf(stdout, "cache (key data):\n");
-    CacheNode* entry = lruCache->LRUHead;
+    cacheNode* entry = lruCache->LRUHead;
     for (int i = 0; i < lruCache->currentSize;i++) {
         fprintf(stdout, "(%s, %s)\n", entry->key, entry->val);
         entry = entry->LRUNext;
     }
 }
 
-int HashCode(LRUCache* cache, char* key)
+int hashCode(LRUCache* cache, char* key)
 {
     unsigned int len = strlen(key);
     unsigned int b = 378551;
@@ -129,24 +129,24 @@ int HashCode(LRUCache* cache, char* key)
     return hash % (cache->capacity);
 }
 
-void HashMapInsert(LRUCache* cache, CacheNode* node)
+void hashMapInsert(LRUCache* cache, CacheNode* node)
 {
-    int index = HashCode(cache, node->key);
-    CacheNode* n = cache->HashMap[index];
+    int index = hashCode(cache, node->key);
+    cacheNode* n = cache->hashMap[index];
 
     if (n != NULL)
     {
-        node->HashNext = n;
-        n->HashPrev = node;
+        node->hashNext = n;
+        n->hashPrev = node;
     }
-    cache->HashMap[index] = node;
+    cache->hashMap[index] = node;
 }
 
-void freeList(CacheNode* head)
+void freeList(cacheNode* head)
 {
     while (head)
     {
-        CacheNode* temp = head->LRUNext;
+        cacheNode* temp = head->LRUNext;
         free(head);
         head = temp;
     }
