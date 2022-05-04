@@ -1,8 +1,7 @@
 # ninja log v5
-1	159	6723256778270610	DNSrelay/CMakeFiles/DNSrelay.dir/DNSrelay.c.obj	a4dbc24a988ab37f
-29	166	6723256778270610	DNSrelay/CMakeFiles/DNSrelay.dir/Trie.c.obj	60d4625f7fe89a9e
-167	864	6723256785249653	DNSrelay/DNSrelay.exe	1df7b29d3e5e5424
-1	135	6723256885175743	DNSrelay/CMakeFiles/DNSrelay.dir/DNSrelay.c.obj	a4dbc24a988ab37f
-141	516	6723256888492737	DNSrelay/DNSrelay.exe	1df7b29d3e5e5424
-1	130	6723257478189886	DNSrelay/CMakeFiles/DNSrelay.dir/DNSrelay.c.obj	a4dbc24a988ab37f
-136	525	6723257481567421	DNSrelay/DNSrelay.exe	1df7b29d3e5e5424
+10	558	6732895570744947	DNSrelay/CMakeFiles/DNSrelay.dir/Trie.c.obj	60d4625f7fe89a9e
+9	808	6732965737296810	DNSrelay/CMakeFiles/DNSrelay.dir/idtransfer.c.obj	608442941ec590ca
+1	520	6732987609665964	DNSrelay/CMakeFiles/DNSrelay.dir/DNSrelay.c.obj	a4dbc24a988ab37f
+522	745	6732987611606284	DNSrelay/DNSrelay.exe	9f688bf081555f2e
+1	494	6732987911161727	DNSrelay/CMakeFiles/DNSrelay.dir/DNSrelay.c.obj	a4dbc24a988ab37f
+496	702	6732987912963118	DNSrelay/DNSrelay.exe	9f688bf081555f2e

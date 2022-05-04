@@ -76,7 +76,7 @@ void LRUCachePut(LRUCache* lruCache, char* key, char* val)
 }
 
 /*Í·²å*/
-void moveToFirst(LRUCache* cache, CacheNode* entry)
+void moveToFirst(LRUCache* cache, cacheNode* entry)
 {
     if (cache->LRUHead == NULL && cache->LRUTail == NULL)
     {
@@ -92,7 +92,7 @@ void moveToFirst(LRUCache* cache, CacheNode* entry)
     }
 }
 
-CacheNode* newCacheNode(char* key, char* val)
+cacheNode* newCacheNode(char* key, char* val)
 {
     cacheNode* node = (cacheNode*)malloc(sizeof(*node));
     memset(node, 0, sizeof(*node));
@@ -129,7 +129,7 @@ int hashCode(LRUCache* cache, char* key)
     return hash % (cache->capacity);
 }
 
-void hashMapInsert(LRUCache* cache, CacheNode* node)
+void hashMapInsert(LRUCache* cache, cacheNode* node)
 {
     int index = hashCode(cache, node->key);
     cacheNode* n = cache->hashMap[index];
