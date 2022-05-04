@@ -7,52 +7,69 @@
 #define KEY_SIZE 50
 #define VAL_SIZE 100
 
-/*Ò»¸öLRU»º´æ*/
+/*ä¸€ä¸ªLRUç¼“å­˜*/
 typedef struct LRUCache{
 	int capacity;
 	int currentSize;
 
-	struct cacheNode** hashMap;
+	struct CacheNode** HashMap;
 
-	struct cacheNode* LRUHead;
-	struct cacheNode* LRUTail;
+	struct CacheNode* LRUHead;
+	struct CacheNode* LRUTail;
 }LRUCache;
 
-/*LRU»º´æË«ÏòÁ´±í½áµã*/
-typedef struct cacheNode
+/*LRUç¼“å­˜åŒå‘é“¾è¡¨ç»“ç‚¹*/
+typedef struct CacheNode
 {
 	char key[KEY_SIZE];
+	time_t expireTime;
+	//valæ›´æ”¹ä¸ºï¼š
+	//time_t expireTime(expireTimeåº”ä¸ºtime(NULL)+ttl) å³ç³»ç»Ÿæ—¶é—´åŠ ä¸ŠæŠ¥æ–‡ä¸­çš„ä¿å­˜è®°å½•æ—¶é•¿
+	uint32_t ip;
 	char val[VAL_SIZE];
-	//val¸ü¸ÄÎª£º
-	//time_t expireTime(expireTimeÓ¦Îªtime(NULL)+ttl) ¼´ÏµÍ³Ê±¼ä¼ÓÉÏ±¨ÎÄÖĞµÄ±£´æ¼ÇÂ¼Ê±³¤
+	//valæ›´æ”¹ä¸ºï¼š
+	//time_t expireTime(expireTimeåº”ä¸ºtime(NULL)+ttl) å³ç³»ç»Ÿæ—¶é—´åŠ ä¸ŠæŠ¥æ–‡ä¸­çš„ä¿å­˜è®°å½•æ—¶é•¿
 	//uint32_t ip
 
-	struct cacheNode* hashPrev;
-	struct cacheNode* hashNext;
+	struct CacheNode* HashPrev;
+	struct CacheNode* HashNext;
 
-	struct cacheNode* LRUPrev;
-	struct cacheNode* LRUNext;
-}cacheNode;
+	struct CacheNode* LRUPrev;
+	struct CacheNode* LRUNext;
+}CacheNode;
 
-/*´´½¨LRU»º´ælruCache*/
+/*åˆ›å»ºLRUç¼“å­˜lruCache*/
 LRUCache* LRUCacheCreate(int capacity);
-/*Ïú»ÙLRU»º´ælruCache*/
+/*é”€æ¯LRUç¼“å­˜lruCache*/
 void LRUCacheDestroy(LRUCache* lruCache);
-/*´ÓLRU»º´æÖĞÄÃ³öÊı¾İ*/
-char* LRUCacheGet(LRUCache* lruCache, char* key);//¸ü¸ÄÎª void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip);
-/*½«Êı¾İ·ÅÈëLRU»º´æ*/
-void LRUCachePut(LRUCache* lruCache, char* key, char* val);//¸ü¸ÄÎª void LRUCachePut(LRUCache* lruCache, time_t* ttl, uint32_t* ip)
+/*ä»LRUç¼“å­˜ä¸­æ‹¿å‡ºæ•°æ®*/
+void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip);
+/*å°†æ•°æ®æ”¾å…¥LRUç¼“å­˜*/
+void LRUCachePut(LRUCache* lruCache,char* key, time_t* ttl, uint32_t* ip);
 
-/*Í·²å*/
+/*å¤´æ’*/
+void MoveToFirst(LRUCache* cache, CacheNode* entry);
+
+/*åˆ›å»ºcacheç»“ç‚¹*/
+CacheNode* NewCacheNode(char* key, time_t ttl,uint32_t ip);
+
+char* LRUCacheGet(LRUCache* lruCache, char* key);//æ›´æ”¹ä¸º void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip);
+/*å°†æ•°æ®æ”¾å…¥LRUç¼“å­˜*/
+void LRUCachePut(LRUCache* lruCache, char* key, char* val);//æ›´æ”¹ä¸º void LRUCachePut(LRUCache* lruCache, time_t* ttl, uint32_t* ip)
+
+/*å¤´æ’*/
 void moveToFirst(LRUCache* cache, cacheNode* entry);
 
-/*´´½¨cache½áµã*/
+/*åˆ›å»ºcacheç»“ç‚¹*/
 cacheNode* newCacheNode(char* key, char* val);
 
 void LRUCachePrint(LRUCache* lruCache);
 
-int hashCode(LRUCache* cache, char* key);
+int HashCode(LRUCache* cache, char* key);
+
+void HashMapInsert(LRUCache* cache, CacheNode* node);
 
 void hashMapInsert(LRUCache* cache, cacheNode* node);
+
 
 void freeList(cacheNode* head);
