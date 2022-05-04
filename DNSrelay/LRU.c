@@ -48,7 +48,7 @@ void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
 }
 
 /*将键值对放入cache*/
-void LRUCachePut(LRUCache* lruCache, char* key,time_t ttl, uint32_t ip)
+void LRUCachePut(LRUCache* lruCache, char* key,time_t* ttl, uint32_t* ip)
 {
     CacheNode* Entry = lruCache->HashMap[HashCode(lruCache, key)];
 
@@ -62,14 +62,14 @@ void LRUCachePut(LRUCache* lruCache, char* key,time_t ttl, uint32_t ip)
 
     if (Entry != NULL)
     {
-        Entry->expireTime = ttl;
-        Entry->ip = ip;
+        Entry->expireTime = *ttl;
+        Entry->ip = *ip;
 
         MoveToFirst(lruCache, Entry);
     }
     else
     {
-        Entry = NewCacheNode(key, ttl,ip);
+        Entry = NewCacheNode(key, *ttl,*ip);
         if (lruCache->currentSize == lruCache->capacity)
         {
             CacheNode* temp = lruCache->LRUTail->LRUPrev;
