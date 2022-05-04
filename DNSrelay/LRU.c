@@ -2,7 +2,7 @@
 
 #include "LRU.h"
 
-/*创建LRU缓存*/
+/*鍒涘缓LRU缂撳瓨*/
 LRUCache* LRUCacheCreate(int capacity)
 {
     LRUCache* NewCache = (LRUCache*)malloc(sizeof(LRUCache));
@@ -14,7 +14,7 @@ LRUCache* LRUCacheCreate(int capacity)
     return NewCache;
 }
 
-/*销毁LRUCache*/
+/*閿�姣丩RUCache*/
 void LRUCacheDestroy(LRUCache* lruCache)
 {
     free(lruCache->HashMap);
@@ -22,7 +22,7 @@ void LRUCacheDestroy(LRUCache* lruCache)
     free(lruCache);
 }
 
-/*根据key获得val*/
+/*鏍规嵁key鑾峰緱val*/
 void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
 {
     CacheNode* Entry = lruCache->HashMap[HashCode(lruCache, key)];
@@ -47,7 +47,7 @@ void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
     }
 }
 
-/*将键值对放入cache*/
+/*灏嗛敭鍊煎鏀惧叆cache*/
 void LRUCachePut(LRUCache* lruCache, char* key,time_t* ttl, uint32_t* ip)
 {
     CacheNode* Entry = lruCache->HashMap[HashCode(lruCache, key)];
@@ -84,8 +84,10 @@ void LRUCachePut(LRUCache* lruCache, char* key,time_t* ttl, uint32_t* ip)
     }
 }
 
-/*头插*/
+/*澶存彃*/
 void MoveToFirst(LRUCache* cache, CacheNode* entry)
+
+void moveToFirst(LRUCache* cache, cacheNode* entry)
 {
     if (cache->LRUHead == NULL && cache->LRUTail == NULL)
     {
@@ -101,7 +103,10 @@ void MoveToFirst(LRUCache* cache, CacheNode* entry)
     }
 }
 
+
 CacheNode* NewCacheNode(char* key, time_t ttl, uint32_t ip)
+
+cacheNode* newCacheNode(char* key, char* val)
 {
     CacheNode* node = (CacheNode*)malloc(sizeof(*node));
     memset(node, 0, sizeof(*node));
@@ -140,6 +145,8 @@ int HashCode(LRUCache* cache, char* key)
 }
 
 void HashMapInsert(LRUCache* cache, CacheNode* node)
+
+void hashMapInsert(LRUCache* cache, cacheNode* node)
 {
     int index = HashCode(cache, node->key);
     CacheNode* n = cache->HashMap[index];
