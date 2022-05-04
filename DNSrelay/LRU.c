@@ -85,8 +85,6 @@ void LRUCachePut(LRUCache* lruCache, char* key,time_t* ttl, uint32_t* ip)
 }
 
 /*头插*/
-void MoveToFirst(LRUCache* cache, CacheNode* entry)
-
 void moveToFirst(LRUCache* cache, cacheNode* entry)
 {
     if (cache->LRUHead == NULL && cache->LRUTail == NULL)
@@ -102,9 +100,6 @@ void moveToFirst(LRUCache* cache, cacheNode* entry)
         cache->LRUHead = entry;
     }
 }
-
-
-CacheNode* NewCacheNode(char* key, time_t ttl, uint32_t ip)
 
 cacheNode* newCacheNode(char* key, char* val)
 {
@@ -143,8 +138,6 @@ int HashCode(LRUCache* cache, char* key)
     }
     return hash % (cache->capacity);
 }
-
-void HashMapInsert(LRUCache* cache, CacheNode* node)
 
 void hashMapInsert(LRUCache* cache, cacheNode* node)
 {
