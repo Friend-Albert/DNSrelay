@@ -40,7 +40,7 @@ void LRUCacheDestroy(LRUCache* lruCache);
 /*从LRU缓存中拿出数据*/
 void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip);
 /*将数据放入LRU缓存*/
-void LRUCachePut(LRUCache* lruCache,char* key, time_t ttl, uint32_t ip);
+void LRUCachePut(LRUCache* lruCache,char* key, time_t* ttl, uint32_t* ip);
 
 /*头插*/
 void MoveToFirst(LRUCache* cache, CacheNode* entry);
