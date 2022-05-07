@@ -50,16 +50,16 @@ The CXX compiler identification is MSVC, found in "D:/project/DNSrelay/out/build
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: D:/project/DNSrelay/out/build/x64-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):D:/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_fd551 && [1/2] Building C object CMakeFiles\cmTC_fd551.dir\CMakeCCompilerABI.c.obj
-[2/2] Linking C executable cmTC_fd551.exe
+Run Build Command(s):D:/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_40ae6 && [1/2] Building C object CMakeFiles\cmTC_40ae6.dir\CMakeCCompilerABI.c.obj
+[2/2] Linking C executable cmTC_40ae6.exe
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: D:/project/DNSrelay/out/build/x64-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):D:/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_a1e49 && [1/2] Building CXX object CMakeFiles\cmTC_a1e49.dir\CMakeCXXCompilerABI.cpp.obj
-[2/2] Linking CXX executable cmTC_a1e49.exe
+Run Build Command(s):D:/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_28ac4 && [1/2] Building CXX object CMakeFiles\cmTC_28ac4.dir\CMakeCXXCompilerABI.cpp.obj
+[2/2] Linking CXX executable cmTC_28ac4.exe
 
 
 

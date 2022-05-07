@@ -2,17 +2,18 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define MAX_NAME_LENGTH 253+1
 #define CHAR_TYPE 26+10+2
-#define MAX_RECORD 2000
+#define MAX_RECORD 3000
 
 
 typedef struct{
 	int recordNumber;
-	char IP[MAX_RECORD][16];
+	uint32_t IP[MAX_RECORD];
 	struct node* root;
 }Trie;
 
@@ -26,7 +27,6 @@ node* createNode();
 int getCharIndex(char);
 void insertName(node*, char*, int);
 int findIPIndex(node*, char*);
-char* getIP(Trie*, char*);
+uint32_t getIP(Trie*, char*);
 bool deleteName(node*, char*);
 void freeTrie(node*);
-bool getRecord(char*, Trie*);

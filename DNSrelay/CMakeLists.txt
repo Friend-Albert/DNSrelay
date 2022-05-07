@@ -4,6 +4,6 @@
 cmake_minimum_required (VERSION 3.8)
 
 # 将源代码添加到此项目的可执行文件。
-add_executable (DNSrelay "DNSrelay.c" "DNSrelay.h" "Trie.h" "Trie.c"  "idtransfer.h" "idtransfer.c")
+add_executable (DNSrelay "DNSrelay.c" "DNSrelay.h" "Trie.h" "Trie.c"  "idtransfer.h" "idtransfer.c" "cache.c" "cache.h" "LRU.h" "LRU.c" "getopt.h" "getopt.c")
 
 # TODO: 如有需要，请添加测试并安装目标。

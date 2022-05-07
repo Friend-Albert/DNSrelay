@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #pragma comment (lib, "ws2_32.lib")
 
-#define MAX_LENGTH 65536
+#define MAX_IDPOOL_SIZE 65536
 
 struct idTransfer {
 	bool hold;
@@ -17,9 +17,9 @@ struct idTransfer {
 	time_t inTime;
 };
 
-struct idTransfer idPool[MAX_LENGTH];
+struct idTransfer idPool[MAX_IDPOOL_SIZE];
 static int curId = 0;
-static int poolRemain = MAX_LENGTH;
+static int poolRemain = MAX_IDPOOL_SIZE;
 
 uint32_t addId(struct sockaddr_in* clnt, uint32_t clntId);
 void releaseId(uint32_t serverId);

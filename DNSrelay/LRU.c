@@ -5,88 +5,95 @@
 /*创建LRU缓存*/
 LRUCache* LRUCacheCreate(int capacity)
 {
-    LRUCache* NewCache = (LRUCache*)malloc(sizeof(LRUCache));
-    memset(NewCache, 0, sizeof(*NewCache));
-    NewCache->capacity = capacity;
-    NewCache->HashMap = malloc(capacity * sizeof(CacheNode*));
-    memset(NewCache->HashMap, 0, sizeof(CacheNode*) * capacity);
-
-    return NewCache;
+    LRUCache* newCache = (LRUCache*)malloc(sizeof(LRUCache));
+    memset(newCache, 0, sizeof(LRUCache));
+    newCache->capacity = capacity;
+    for (int i = 0; i < capacity; i++)
+        newCache->hashMap[i] = NULL;
+    return newCache;
 }
 
 /*销毁LRUCache*/
 void LRUCacheDestroy(LRUCache* lruCache)
 {
-    free(lruCache->HashMap);
+    free(lruCache->hashMap);
     freeList(lruCache->LRUHead);
     free(lruCache);
 }
 
 /*根据key获得val*/
-void LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
+int LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
 {
-    CacheNode* Entry = lruCache->HashMap[HashCode(lruCache, key)];
-
-    while (Entry)
+    cacheNode* entry = lruCache->hashMap[hashCode(lruCache, key)];
+    while (entry)
     {
-        if (!strncmp(Entry->key, key, KEY_SIZE))
+        if (!strncmp(entry->key, key, KEY_SIZE))
             break;
         else
-            Entry = Entry->LRUNext;
+            entry = entry->hashNext;
     }
-
-    if (Entry == NULL)
+    if (entry == NULL)
     {
-        ttl = NULL;
-        ip = NULL;
+        return 0;
     }
     else
     {
-        *ttl = Entry->expireTime;
-        *ip = Entry->ip;
+        *ttl = entry->expireTime;
+        *ip = entry->ip;
+        moveToFirst(lruCache, entry);
+        return 1;
     }
 }
 
 /*将键值对放入cache*/
-void LRUCachePut(LRUCache* lruCache, char* key,time_t* ttl, uint32_t* ip)
+void LRUCachePut(LRUCache* lruCache, char* key,time_t ttl, uint32_t ip)
 {
-    CacheNode* Entry = lruCache->HashMap[HashCode(lruCache, key)];
+    int idx = hashCode(lruCache, key);
+    cacheNode* entry = lruCache->hashMap[idx];
 
-    while (Entry)
+    while (entry)
     {
-        if (!strncmp(Entry->key, key, KEY_SIZE))
+        if (!strncmp(entry->key, key, KEY_SIZE))
             break;
         else
-            Entry = Entry->LRUNext;
+            entry = entry->hashNext;
     }
 
-    if (Entry != NULL)
+    if (entry != NULL)
     {
-        Entry->expireTime = *ttl;
-        Entry->ip = *ip;
-
-        MoveToFirst(lruCache, Entry);
+        entry->expireTime = ttl + time(NULL);
+        entry->ip = ip;
+        if (entry == lruCache->LRUTail)
+            lruCache->LRUTail = entry->LRUPrev;
+        if(entry != lruCache->LRUHead)
+            moveToFirst(lruCache, entry);
     }
     else
     {
-        Entry = NewCacheNode(key, *ttl,*ip);
+        entry = newCacheNode(key, ttl, ip);
         if (lruCache->currentSize == lruCache->capacity)
         {
-            CacheNode* temp = lruCache->LRUTail->LRUPrev;
-            lruCache->LRUTail->LRUPrev = temp->LRUPrev;
-            temp->LRUPrev->LRUNext = lruCache->LRUTail;
+            cacheNode* temp = lruCache->LRUTail;
+            int index = hashCode(lruCache, temp->key);
+            lruCache->LRUTail = temp->LRUPrev;
+            lruCache->LRUTail->LRUNext = NULL;
+            cacheNode* prev = temp->hashPrev;
+            if (temp->hashPrev)
+                temp->hashPrev->hashNext = temp->hashNext;
+            if (temp->hashNext)
+                temp->hashNext->hashPrev = prev;
+            if (lruCache->hashMap[index] == temp)
+                lruCache->hashMap[index] = NULL;
             free(temp);
             lruCache->currentSize--;
         }
-        MoveToFirst(lruCache, Entry);
-        HashMapInsert(lruCache, Entry);
+        moveToFirst(lruCache, entry);
+        hashMapInsert(lruCache, entry);
         lruCache->currentSize++;
     }
 }
 
 /*头插*/
-void MoveToFirst(LRUCache* cache, CacheNode* entry)
-
 void moveToFirst(LRUCache* cache, cacheNode* entry)
 {
     if (cache->LRUHead == NULL && cache->LRUTail == NULL)
@@ -96,22 +103,28 @@ void moveToFirst(LRUCache* cache, cacheNode* entry)
     }
     else 
     {
-        entry->LRUNext = cache->LRUHead;
+        cacheNode* head = cache->LRUHead;
+        if (entry->LRUPrev)
+            entry->LRUPrev->LRUNext = entry->LRUNext;
+        if (entry->LRUNext)
+            entry->LRUNext->LRUPrev = entry->LRUPrev;
+        entry->LRUNext = head;
         entry->LRUPrev = NULL;
-        cache->LRUHead->LRUPrev = entry;
+        head->LRUPrev = entry;
         cache->LRUHead = entry;
     }
 }
 
 
-CacheNode* NewCacheNode(char* key, time_t ttl, uint32_t ip)
-
-cacheNode* newCacheNode(char* key, char* val)
+cacheNode* newCacheNode(char* key, time_t ttl, uint32_t ip)
 {
-    CacheNode* node = (CacheNode*)malloc(sizeof(*node));
-    memset(node, 0, sizeof(*node));
+    cacheNode* node = malloc(sizeof(cacheNode));
+    node->hashNext = NULL;
+    node->hashPrev = NULL;
+    node->LRUNext = NULL;
+    node->LRUPrev = NULL;
     strncpy(node->key, key, KEY_SIZE);
-    node->expireTime = ttl;
+    node->expireTime = ttl + time(NULL);
     node->ip = ip;
     return node;
 }
@@ -121,15 +134,17 @@ void LRUCachePrint(LRUCache* lruCache)
     if (NULL == lruCache || 0 == lruCache->currentSize) {
         return;
     }
-    fprintf(stdout, "cache (key data):\n");
-    CacheNode* entry = lruCache->LRUHead;
-    for (int i = 0; i < lruCache->currentSize;i++) {
-        fprintf(stdout, "(%s, %s, %s)\n", entry->key, entry->expireTime,entry->ip);
-        entry = entry->LRUNext;
+    printf("cache (key data):\n");
+    cacheNode* entry = lruCache->LRUTail;
+    int i;
+    for (i = 0; entry!=NULL;i++) {
+        printf("(%s, %d, %x)\n", entry->key, entry->expireTime,entry->ip);
+        entry = entry->LRUPrev;
     }
+    printf("total:%d\n", i);
 }
 
-int HashCode(LRUCache* cache, char* key)
+int hashCode(LRUCache* cache, char* key)
 {
     unsigned int len = strlen(key);
     unsigned int b = 378551;
@@ -141,29 +156,27 @@ int HashCode(LRUCache* cache, char* key)
         hash = hash * a + (unsigned int)(*key);
         a = a * b;
     }
-    return hash % (cache->capacity);
+    return hash % SIZE;
 }
-
-void HashMapInsert(LRUCache* cache, CacheNode* node)
 
 void hashMapInsert(LRUCache* cache, cacheNode* node)
 {
-    int index = HashCode(cache, node->key);
-    CacheNode* n = cache->HashMap[index];
+    int index = hashCode(cache, node->key);
+    cacheNode* n = cache->hashMap[index];
 
     if (n != NULL)
     {
-        node->HashNext = n;
-        n->HashPrev = node;
+        node->hashNext = n;
+        n->hashPrev = node;
     }
-    cache->HashMap[index] = node;
+    cache->hashMap[index] = node;
 }
 
-void freeList(CacheNode* head)
+void freeList(cacheNode* head)
 {
     while (head)
     {
-        CacheNode* temp = head->LRUNext;
+        cacheNode* temp = head->LRUNext;
         free(head);
         head = temp;
     }

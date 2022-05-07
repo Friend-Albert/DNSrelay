@@ -64,13 +64,11 @@ int findIPIndex(node* root, char* domainName)
 	return index;
 }
 
-char* getIP(Trie* trie, char* domainName)
+uint32_t getIP(Trie* trie, char* domainName)
 {
 	int index = findIPIndex(trie->root, domainName);
-	if (index == -1) return NULL;
-	char* IP = malloc(sizeof(char)*16);
-	memcpy(IP, trie->IP[index], 16);
-	return IP;
+	if (index == -1) return -1;
+	return trie->IP[index];
 }
 
 bool deleteName(node* root, char* domainName)
@@ -101,40 +99,4 @@ void freeTrie(node* root)
 		}
 		free(root);
 	}
-}
-
-bool getRecord(char* path, Trie* tree)
-{
-	FILE* fp = fopen(path, "rt");
-	if (fp == NULL) 
-	{ 
-		printf("Failed to open the file!\n");
-		return false; 
-	}
-	char tmp[300];
-	while (fgets(tmp, 300, fp) != NULL) 
-	{
-		//if (tmp[0] == '\n') continue;
-		int i = 0, j = 0;
-		char IP[16];
-		char name[MAX_NAME_LENGTH];
-		for (; i < strlen(tmp); i++) 
-		{
-			if (tmp[i] == ' ') break;
-			IP[j++] = tmp[i];
-		}
-		IP[j] = '\0';
-		j = 0;
-		++i;
-		for (; i < strlen(tmp); i++) 
-		{
-			name[j++] = tmp[i];
-		}
-		name[--j] = '\0';
-		insertName(tree->root, name, tree->recordNumber);
-		memcpy(tree->IP[tree->recordNumber++], IP, 16);
-		printf("%s\n", name);
-	}
-	printf("Get %d records,using %zd bytes\n", tree->recordNumber, sizeof(tree));
-	return true;
 }

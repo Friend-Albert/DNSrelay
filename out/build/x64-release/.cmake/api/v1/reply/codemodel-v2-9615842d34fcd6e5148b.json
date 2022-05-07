@@ -10,7 +10,7 @@
 					[
 						1
 					],
-					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -20,7 +20,7 @@
 				},
 				{
 					"build" : "DNSrelay",
-					"jsonFile" : "directory-DNSrelay-Debug-daaa0be3ee883798def1.json",
+					"jsonFile" : "directory-DNSrelay-Release-daaa0be3ee883798def1.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -34,7 +34,7 @@
 					]
 				}
 			],
-			"name" : "Debug",
+			"name" : "Release",
 			"projects" : 
 			[
 				{
@@ -55,7 +55,7 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "DNSrelay::@57c1912d556babf2aeae",
-					"jsonFile" : "target-DNSrelay-Debug-fa981a9c2c052e33c777.json",
+					"jsonFile" : "target-DNSrelay-Release-dd5082fb15177a3f9587.json",
 					"name" : "DNSrelay",
 					"projectIndex" : 0
 				}
@@ -65,7 +65,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "D:/project/DNSrelay/out/build/x64-debug",
+		"build" : "D:/project/DNSrelay/out/build/x64-release",
 		"source" : "D:/project/DNSrelay"
 	},
 	"version" : 

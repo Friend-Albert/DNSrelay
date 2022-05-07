@@ -2,15 +2,15 @@
 
 uint32_t addId(struct sockaddr_in* clnt, uint32_t clntId)
 {
+	if (poolRemain == 0)
+	{
+		printf("Error: Id pool overflowed. please wait a monment.\n");
+		return MAX_IDPOOL_SIZE;
+	}
 	uint32_t prevId = curId;
 	while (idPool[curId].hold && time(NULL) - idPool[curId].inTime < 2)
 	{
 		++curId;
-		if (curId == prevId)
-		{
-			printf("Error: Id pool overflow. \n");
-			exit(-1);
-		}
 	}
 	--poolRemain;
 	idPool[curId].hold = true;
