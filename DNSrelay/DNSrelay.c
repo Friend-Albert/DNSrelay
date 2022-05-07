@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
 void printProgramInfo()
 {
-    printf("DNSRELAY\n");
+    printf("                                 DNSRELAY\n");
     printf("@Auther: He shaoChen Ma JunMeng Yu KeXin\n");
     printf("@Teacher: Cheng Li\n");
     printf("@Description: A simple DNS server, course design of computer network\n");
@@ -194,7 +194,7 @@ void printPackage(uint8_t* buffer,bool isServer)
 void printHeader(struct header* p)
 {
     printf("---------------------------------------------------------------------\n");
-    printf("Header:\n");
+    printf("                             Header:\n");
     printf("id:%04x\n", ntohs(p->id)); 
     printf("QR : %d Opcode : %x AA : %d TC : %d\n",  p->qr, p->opcode, p->aa,p->tc);
     printf("RD : %d RA: %d Z : %d rcode : %x\n", p->rd, p->ra, p->z, p->rcode);
