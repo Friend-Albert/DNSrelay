@@ -61,7 +61,7 @@ void printProgramInfo()
     printf("@Auther: He shaoChen Ma JunMeng Yu KeXin\n");
     printf("@Teacher: Cheng Li\n");
     printf("@Description: A simple DNS server, course design of computer network\n");
-    printf("@Usage: minidns [-d] [-h] [-l] [-f <db-file>] [-s <dns-server>]\n");
+    printf("@Usage: dnsrelay [-d] [-h] [-l] [-f <db-file>] [-s <dns-server>]\n");
     printf("---------------------------------------------------------------------------\n");
 }
 
