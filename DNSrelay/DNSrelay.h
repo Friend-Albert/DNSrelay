@@ -22,22 +22,7 @@
 
 static char DNSSERVER[16] = "114.114.114.114";
 
-// Header
-//                                 1  1  1  1  1  1
-//   0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-// |                      ID                       |
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-// |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-// |                    QDCOUNT                    |
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-// |                    ANCOUNT                    |
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-// |                    NSCOUNT                    |
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-// |                    ARCOUNT                    |
-// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+//使用位域技巧构造header结构体从而大幅优化代码量同时大幅减小位运算的使用
 struct header
 {
     unsigned id : 16;    /* query identification number */
@@ -57,7 +42,7 @@ struct header
     uint16_t arcount;    /* number of resource entries */
 };
 
-// Question Section
+// DNS报文question字段的偏移量
 static const int QUESTION_OFFSET = 12;
 struct question
 {
@@ -66,26 +51,25 @@ struct question
     uint16_t qclass;
 };
 
-//Resource Record Format
 struct resourceRecord
 {
     uint16_t name;
     uint16_t type;
     uint16_t class;
     uint16_t ttl;
-    uint16_t _ttl;
+    uint16_t _ttl;//此处为阻止结构体内存对齐因此将ttl拆成两部分
     uint16_t rd_length;
     uint32_t rdata;
 };
 
-static char path[256] = "D:\\project\\DNSrelay\\DNSrelay\\dnsrelay.txt";
-static uint32_t packageCount = 0;
-static int debugLevel = 1;
-static const int aNameOffset = 0xc00c;
-static const uint16_t aNameType = 0x0001;
-static const uint16_t inClass = 1;
-static const uint16_t aRDLength = 4;
-static const int rrSize = 16;
+static char path[256] = "D:\\project\\DNSrelay\\DNSrelay\\dnsrelay.txt";//默认资源记录路径
+static uint32_t packageCount = 0;//用于记录收到DNS报文数量
+static int debugLevel = 1;//调试信息打印级别
+static const int aNameOffset = 0xc00c;//域名偏移量
+static const uint16_t aNameType = 0x0001;//A类型
+static const uint16_t inClass = 1;//IN（Internet）类型
+static const uint16_t aRDLength = 4;//A类型的资源数据记录长度（IP地址长度）
+static const int rrSize = 16;//A类型资源记录的长度
 
 SOCKET sock;
 struct sockaddr_in clntAddr, servAddr;

@@ -4,11 +4,10 @@
 #include "DNSrelay.h"
 
 
-
 int main(int argc, char* argv[])
 {   
     printProgramInfo();
-    parsingParameters(argc, argv);
+    //parsingParameters(argc, argv);
     initCache(path);
     //scanf("%d", &debugLevel);
     initSocket();
@@ -18,9 +17,11 @@ int main(int argc, char* argv[])
     int idx = 0;
     while (1) 
     {
+        //不断接受包，随后针对不同DNS包进行处理
         memset(buffer, 0, sizeof(buffer));
         int recvLen = recvfrom(sock, buffer, BUFSIZE, 0, &clntAddr, &nSize);
         if (recvLen <= 0) { continue; }
+        
         struct header* p = (struct header*)buffer;
         if (p->qr == 0 && ntohs(p->qdcount) == 1) //客户端的请求报文且请求数为1
         {
@@ -30,6 +31,7 @@ int main(int argc, char* argv[])
         else if (p->qr == 0 && ntohs(p->qdcount) != 1)//客户端的请求报文且请求数不为1
         {
             printPackage(buffer, false);
+            //直接向外转发
             uint32_t newId = addId(&clntAddr, ntohs(p->id));
             if (newId == MAX_IDPOOL_SIZE) continue;
             p->id = htons(newId);
@@ -38,6 +40,7 @@ int main(int argc, char* argv[])
         else if (p->qr == 1) //DNS服务器的响应报文
         {
             printPackage(buffer, true);
+            //如果查询到了结果并且问题数为1
             if (1 == ntohs(p->qdcount) && 0 == p->opcode) 
                 handleServerPackage(buffer);
             struct sockAddr_in* client;
@@ -55,6 +58,10 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+/**
+ * @brief 打印程序基本信息
+ * 
+ */
 void printProgramInfo()
 {
     printf("                                 DNSRELAY\n");
@@ -65,6 +72,12 @@ void printProgramInfo()
     printf("---------------------------------------------------------------------------\n");
 }
 
+/**
+ * @brief 处理命令行参数
+ * 
+ * @param argc 参数数量
+ * @param argv 参数字符串数组
+ */
 void parsingParameters(int argc, char* argv[])
 {
     int o;
@@ -100,6 +113,10 @@ void parsingParameters(int argc, char* argv[])
     }
 }
 
+/**
+ * @brief 初始化socket
+ * 
+ */
 void initSocket()
 {
     WSADATA wsaData;
@@ -112,16 +129,15 @@ void initSocket()
     memset(&clntAddr, 0, sizeof(clntAddr));  //每个字节都用0填充
     clntAddr.sin_family = PF_INET;  //使用IPv4地址
     clntAddr.sin_addr.s_addr = htonl(INADDR_ANY); //自动获取IP地址
-    clntAddr.sin_port = htons(DNSPORT);  //端口
+    clntAddr.sin_port = htons(DNSPORT);  
     bind(sock, (SOCKADDR*)&clntAddr, sizeof(SOCKADDR));
 
-    memset(&servAddr, 0, sizeof(servAddr));  //每个字节都用0填充
+    memset(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = PF_INET;  //使用IPv4地址
     servAddr.sin_addr.s_addr = inet_addr(DNSSERVER);
-    servAddr.sin_port = htons(DNSPORT);  //端口
+    servAddr.sin_port = htons(DNSPORT);  
 
-    int nonBlock = 1;
-
+    //此处为解决windows下10054（连接被远端主机强制关闭）的bug
     DWORD  dwByteReturned = 0;
     BOOL bNewBehavior = FALSE;
     DWORD status;
@@ -129,6 +145,13 @@ void initSocket()
         NULL, 0, &dwByteReturned, NULL, NULL);
 }
 
+/**
+ * @brief 解析DNS报文中的question字段
+ * 
+ * @param query 记录question字段信息的结构体的指针
+ * @param buffer 接受DNS报文的缓冲区
+ * @return uint8_t* 资源记录字段的起始位置
+ */
 uint8_t* getQuestion(struct question* query, uint8_t* buffer)
 {
     int i = 0;
@@ -144,6 +167,12 @@ uint8_t* getQuestion(struct question* query, uint8_t* buffer)
     return buffer;
 }
 
+/**
+ * @brief 获得主机序的16位数据
+ * 
+ * @param bufferPtr 指向缓冲区某位置的指针
+ * @return uint16_t 转换为主机序的16位数据
+ */
 uint16_t get16Bits(uint8_t** bufferPtr)
 {
     uint16_t res;
@@ -152,6 +181,13 @@ uint16_t get16Bits(uint8_t** bufferPtr)
     return ntohs(res);
 }
 
+/**
+ * @brief 判断qname字段的字符是否应转换为"."
+ * 
+ * @param c 待判断字符
+ * @return int 0表示不应转换为.
+ *             1表示应转换为.
+ */
 inline int isDot(char c)
 {
     if (c == '-') return 0;
@@ -160,9 +196,16 @@ inline int isDot(char c)
     return 1;
 }
 
+/**
+ * @brief 打印DNS报文信息
+ * 
+ * @param buffer 接受报文的缓冲区
+ * @param isServer 是否为服务器发送来的报文
+ */
 void printPackage(uint8_t* buffer,bool isServer)
 {
     struct header* p = (struct header*)buffer;
+    //在debug模式下会打印报头的详细信息
     if(debugLevel > 1) 
         printHeader(p);
     time_t rawTime = time(NULL);
@@ -191,6 +234,11 @@ void printPackage(uint8_t* buffer,bool isServer)
     }
 }
 
+/**
+ * @brief 打印报头详细信息
+ * 
+ * @param p 记录报头信息的结构体指针
+ */
 void printHeader(struct header* p)
 {
     printf("---------------------------------------------------------------------\n");
@@ -202,12 +250,22 @@ void printHeader(struct header* p)
         ntohs(p->qdcount), ntohs(p->ancount), ntohs(p->arcount), ntohs(p->nscount));
 }
 
+/**
+ * @brief 处理服务器返回的报文
+ * 
+ * @param buffer 
+ */
 void handleServerPackage(uint8_t* buffer)
 {
+    //获得资源记录起始位置的指针
     buffer += QUESTION_OFFSET;
     struct question question;
     uint8_t* recordOffset = getQuestion(&question,buffer);
+
+    //获得资源记录
     struct resourceRecord* record = (struct resourseRecord*)recordOffset;
+    
+    //如果答案域名同请求域名一致并且为A类型则添加记录至LRU中
     if (ntohs(record->name) == aNameOffset && ntohs(record->type) == aNameType)
     {
         addRecordToCache(question.qname, ntohl(record->rdata), (time_t)ntohl(*(uint32_t*)&record->ttl));
@@ -215,6 +273,12 @@ void handleServerPackage(uint8_t* buffer)
     printf("\n");
 }
 
+/**
+ * @brief 处理客户端发来的报文
+ * 
+ * @param buffer 记录DNS报文的缓冲区
+ * @param len DNS报文长度
+ */
 void handleClientPackage(uint8_t* buffer,int len) 
 {
     uint8_t* buf = buffer;
@@ -225,12 +289,15 @@ void handleClientPackage(uint8_t* buffer,int len)
     buffer += QUESTION_OFFSET;
     struct question question;
     uint8_t* recordOffset = getQuestion(&question, buffer);
+    //如果找到记录
     if (question.qtype == 1 && getRecordByName(question.qname, &ip, &ttl))
     {
         p->qr = 1;
         p->ra = 1;
+        //如果该域名被屏蔽
         if (ip == 0)
             p->rcode = 3;
+        //自行构造资源记录字段并返回
         else
         {
             p->rcode = 0;
@@ -245,9 +312,10 @@ void handleClientPackage(uint8_t* buffer,int len)
             memcpy(recordOffset, (uint8_t*)(&answer), rrSize);
             len += rrSize;
         }
-        printf("(%x %lld Hit local record!)\n", ip, ttl);
+        printf("(Hit local record! ttl:%lld)\n",ttl);
         sendto(sock, buf, len, 0, (struct sockaddr*)&clntAddr, nSize);
     }
+    //如果没有查询到结果则转发至服务器
     else
     {
         printf("\n");

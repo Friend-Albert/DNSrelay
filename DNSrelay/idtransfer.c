@@ -1,5 +1,12 @@
 #include "idtransfer.h"
 
+/**
+ * @brief 完成客户端->服务器id的转换
+ * 
+ * @param clnt 记录客户端信息的结构体指针
+ * @param clntId 客户端DNS请求包的ID
+ * @return uint32_t 发送给服务器的响应包ID
+ */
 uint32_t addId(struct sockaddr_in* clnt, uint32_t clntId)
 {
 	if (poolRemain == 0)
@@ -22,6 +29,11 @@ uint32_t addId(struct sockaddr_in* clnt, uint32_t clntId)
 	return curId++;
 }
 
+/**
+ * @brief 将ID池中指定项释放
+ * 
+ * @param serverId 收到DNS响应包的ID
+ */
 void releaseId(uint32_t serverId)
 {
 	idPool[serverId].hold = false;
@@ -29,11 +41,23 @@ void releaseId(uint32_t serverId)
 	return ;
 }
 
-struct sockAddr_in* getClientAddr(uint32_t serverId)
+/**
+ * @brief 获得客户端信息
+ * 
+ * @param serverId 收到DNS响应包的ID
+ * @return struct sockaddr_in* 记录客户端信息的结构体指针
+ */
+struct sockaddr_in* getClientAddr(uint32_t serverId)
 {
 	return &idPool[serverId].clntAddr;
 }
 
+/**
+ * @brief 获得客户端请求包的ID
+ * 
+ * @param serverId 收到DNS响应包的ID
+ * @return uint32_t 客户端请求包的ID
+ */
 uint32_t getClientId(uint32_t serverId)
 {
 	return htons(idPool[serverId].clntId);

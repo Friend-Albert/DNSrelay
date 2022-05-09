@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -8,7 +10,7 @@
 #define KEY_SIZE 254
 #define SIZE 100
 
-/*一个LRU缓存*/
+/*一个LRU缓存，采用链队法哈希表使得查询和插入速度近似为O(1)*/
 typedef struct LRUCache{
 	int capacity;
 	int currentSize;
@@ -33,25 +35,13 @@ typedef struct cacheNode
 	struct cacheNode* LRUNext;
 }cacheNode;
 
-/*创建LRU缓存lruCache*/
 LRUCache* LRUCacheCreate(int capacity);
-/*销毁LRU缓存lruCache*/
 void LRUCacheDestroy(LRUCache* lruCache);
-/*从LRU缓存中拿出数据*/
 int LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip);
-/*将数据放入LRU缓存*/
 void LRUCachePut(LRUCache* lruCache,char* key, time_t ttl, uint32_t ip);
-
-/*创建cache结点*/
 cacheNode* newCacheNode(char* key, time_t ttl,uint32_t ip);
-
-/*头插*/
 void moveToFirst(LRUCache* cache, cacheNode* entry);
-
 void LRUCachePrint(LRUCache* lruCache);
-
 int hashCode(LRUCache* cache, char* key);
-
 void hashMapInsert(LRUCache* cache, cacheNode* node);
-
 void freeList(cacheNode* head);

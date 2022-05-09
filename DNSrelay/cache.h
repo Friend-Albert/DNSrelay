@@ -8,8 +8,8 @@
 
 #define CACHE_SIZE 100
 
-Trie* tree;
-LRUCache* lruCache;
+Trie* tree;//字典树指针
+LRUCache* lruCache;//LRU链表指针
 
 void dotNameToQName(char*);
 void qNameToDotName(char*);

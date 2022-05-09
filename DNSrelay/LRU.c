@@ -2,7 +2,10 @@
 
 #include "LRU.h"
 
-/*创建LRU缓存*/
+/**
+ * @brief 创建LRU缓存
+ * 
+ */
 LRUCache* LRUCacheCreate(int capacity)
 {
     LRUCache* newCache = (LRUCache*)malloc(sizeof(LRUCache));
@@ -13,7 +16,10 @@ LRUCache* LRUCacheCreate(int capacity)
     return newCache;
 }
 
-/*销毁LRUCache*/
+/**
+ * @brief 销毁LRUCache
+ * 
+ */
 void LRUCacheDestroy(LRUCache* lruCache)
 {
     free(lruCache->hashMap);
@@ -21,7 +27,16 @@ void LRUCacheDestroy(LRUCache* lruCache)
     free(lruCache);
 }
 
-/*根据key获得val*/
+/**
+ * @brief 根据域名查询记录
+ * 
+ * @param lruCache LRU链表的指针
+ * @param key 域名
+ * @param ttl 存储ttl查询结果的指针
+ * @param ip 存储ip查询结果的指针
+ * @return int 0表示没查到
+ *             1表示查到
+ */
 int LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
 {
     cacheNode* entry = lruCache->hashMap[hashCode(lruCache, key)];
@@ -45,12 +60,21 @@ int LRUCacheGet(LRUCache* lruCache, char* key, time_t* ttl, uint32_t* ip)
     }
 }
 
-/*将键值对放入cache*/
+/**
+ * @brief 将资源记录放入lru链表中
+ * 
+ * @param lruCache LRU链表的指针
+ * @param key 域名
+ * @param ttl ttl
+ * @param ip ip
+ */
 void LRUCachePut(LRUCache* lruCache, char* key,time_t ttl, uint32_t ip)
 {
+    //获得哈希表索引
     int idx = hashCode(lruCache, key);
     cacheNode* entry = lruCache->hashMap[idx];
 
+    //哈希表中查询
     while (entry)
     {
         if (!strncmp(entry->key, key, KEY_SIZE))
@@ -59,24 +83,29 @@ void LRUCachePut(LRUCache* lruCache, char* key,time_t ttl, uint32_t ip)
             entry = entry->hashNext;
     }
 
+    //如果查到就更新记录并移至头部
     if (entry != NULL)
     {
         entry->expireTime = ttl + time(NULL);
         entry->ip = ip;
         if (entry == lruCache->LRUTail)
             lruCache->LRUTail = entry->LRUPrev;
-        if(entry != lruCache->LRUHead)
+        if (entry != lruCache->LRUHead)
             moveToFirst(lruCache, entry);
     }
+    //没查到就创建新节点
     else
     {
         entry = newCacheNode(key, ttl, ip);
+        //如果满了则释放最久没有使用的记录
         if (lruCache->currentSize == lruCache->capacity)
         {
             cacheNode* temp = lruCache->LRUTail;
             int index = hashCode(lruCache, temp->key);
+            //调整lru链表的连接关系
             lruCache->LRUTail = temp->LRUPrev;
             lruCache->LRUTail->LRUNext = NULL;
+            //调整所在哈希表的连接关系
             cacheNode* prev = temp->hashPrev;
             if (temp->hashPrev)
                 temp->hashPrev->hashNext = temp->hashNext;
@@ -93,7 +122,12 @@ void LRUCachePut(LRUCache* lruCache, char* key,time_t ttl, uint32_t ip)
     }
 }
 
-/*头插*/
+/**
+ * @brief 头插
+ * 
+ * @param cache LRU链表的指针
+ * @param entry 节点指针
+ */
 void moveToFirst(LRUCache* cache, cacheNode* entry)
 {
     if (cache->LRUHead == NULL && cache->LRUTail == NULL)
@@ -115,7 +149,14 @@ void moveToFirst(LRUCache* cache, cacheNode* entry)
     }
 }
 
-
+/**
+ * @brief 创建新节点
+ * 
+ * @param key 域名
+ * @param ttl ttl
+ * @param ip ip
+ * @return cacheNode* 新节点指针
+ */
 cacheNode* newCacheNode(char* key, time_t ttl, uint32_t ip)
 {
     cacheNode* node = malloc(sizeof(cacheNode));
@@ -129,6 +170,11 @@ cacheNode* newCacheNode(char* key, time_t ttl, uint32_t ip)
     return node;
 }
 
+/**
+ * @brief 打印LRU链表中的所有记录
+ * 
+ * @param lruCache 
+ */
 void LRUCachePrint(LRUCache* lruCache)
 {
     if (NULL == lruCache || 0 == lruCache->currentSize) {
@@ -138,12 +184,17 @@ void LRUCachePrint(LRUCache* lruCache)
     cacheNode* entry = lruCache->LRUTail;
     int i;
     for (i = 0; entry!=NULL;i++) {
-        printf("(%s, %d, %x)\n", entry->key, entry->expireTime,entry->ip);
+        printf("(%s, %d, %x)\n", entry->key, (int)entry->expireTime,entry->ip);
         entry = entry->LRUPrev;
     }
-    printf("total:%d\n", i);
 }
 
+/**
+ * @brief 根据域名计算节点的哈希表索引
+ * 
+ * @param key 域名
+ * @return int 哈希表索引
+ */
 int hashCode(LRUCache* cache, char* key)
 {
     unsigned int len = strlen(key);
@@ -159,6 +210,12 @@ int hashCode(LRUCache* cache, char* key)
     return hash % SIZE;
 }
 
+/**
+ * @brief 将节点插入哈希表中
+ * 
+ * @param cache LRU指针
+ * @param node 带插入节点
+ */
 void hashMapInsert(LRUCache* cache, cacheNode* node)
 {
     int index = hashCode(cache, node->key);
@@ -172,6 +229,11 @@ void hashMapInsert(LRUCache* cache, cacheNode* node)
     cache->hashMap[index] = node;
 }
 
+/**
+ * @brief 释放全部lru空间
+ * 
+ * @param head LRU链表头结点
+ */
 void freeList(cacheNode* head)
 {
     while (head)
